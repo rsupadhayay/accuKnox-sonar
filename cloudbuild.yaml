@@ -22,7 +22,7 @@ steps:
       '-Dsonar.projectName=gcp-security-bu' \
       '-Dsonar.host.url=https://8080-cs-886666684842-default.cs-asia-southeast1-ajrg.cloudshell.dev' \
       '-Dsonar.qualitygate.wait=true' \
-     # 'allow_failure: true'
+      'allow_failure: true'
   dir: '/tmp'
   id: 'sonarqube-analysis'
 

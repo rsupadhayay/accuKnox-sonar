@@ -1,0 +1,56 @@
+steps:
+#Step 1: Build with Maven
+- name: 'maven:3.8.4'
+  args: ['mvn', 'clean', 'install']
+- name: gcr.io/cloud-builders/docker
+  args: [
+   'build', 
+   '-t', 
+   'gcr.io/$PROJECT_ID/docker-spring-boot-java-web:latest',
+   '.'
+  ]
+
+#Step 2 static code analysis by sonarqube
+- name: 'maven:3.6.1-jdk-8'
+  entrypoint: 'bash'
+  args:
+    - -c
+    - |
+      unset MAVEN_CONFIG \
+      && mvn sonar:sonar -q -Dsonar.login=sqp_8b5c60c9484a1dfddd48a828f5bde10222e31ad8 \
+      '-Dsonar.projectKey=gcp-security-bu' \
+      '-Dsonar.projectName=gcp-security-bu' \
+      '-Dsonar.host.url=https://8080-cs-886666684842-default.cs-asia-southeast1-ajrg.cloudshell.dev' \
+      '-Dsonar.qualitygate.wait=true' \
+      'allow_failure: true'
+  dir: '/tmp'
+  id: 'sonarqube-analysis'
+
+# Step 3
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/$PROJECT_ID/docker-spring-boot-java-web:latest']
+# Step 4
+- name: 'gcr.io/cloud-builders/kubectl'
+  args: ['apply', '-f', 'k8s/']
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=gke-cluster-gcb-security-bu'
+# Step 5
+- name: 'gcr.io/cloud-builders/kubectl'
+  args: [
+   'set', 
+   'image', 
+   'deployment', 
+   'spring-boot-java-web', 
+   'spring-boot-java-web=gcr.io/$PROJECT_ID/docker-spring-boot-java-web:latest'
+  ]
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=gke-cluster-gcb-security-bu'
+  # Push the image to Google Container Registry with the latest tag
+images: [
+   'gcr.io/$PROJECT_ID/docker-spring-boot-java-web:latest'
+  ]
+
+options:
+  logging: CLOUD_LOGGING_ONLY

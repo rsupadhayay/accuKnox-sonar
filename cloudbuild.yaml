@@ -17,12 +17,12 @@ steps:
     - -c
     - |
       unset MAVEN_CONFIG \
-      && mvn sonar:sonar -q -Dsonar.login=sqp_8b5c60c9484a1dfddd48a828f5bde10222e31ad8 \
+       mvn sonar:sonar -q -Dsonar.login=sqp_8b5c60c9484a1dfddd48a828f5bde10222e31ad8 \
       '-Dsonar.projectKey=gcp-security-bu' \
       '-Dsonar.projectName=gcp-security-bu' \
       '-Dsonar.host.url=https://8080-cs-886666684842-default.cs-asia-southeast1-ajrg.cloudshell.dev' \
       '-Dsonar.qualitygate.wait=true' \
-      'allow_failure: true'
+     # 'allow_failure: true'
   dir: '/tmp'
   id: 'sonarqube-analysis'
 
